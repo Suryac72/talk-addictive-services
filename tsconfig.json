@@ -23,6 +23,12 @@
       ],
       "@app/feature-auth/*": [
         "libs/feature-auth/src/*"
+      ],
+      "@app/feature-chat": [
+        "libs/feature-chat/src"
+      ],
+      "@app/feature-chat/*": [
+        "libs/feature-chat/src/*"
       ]
     }
   }

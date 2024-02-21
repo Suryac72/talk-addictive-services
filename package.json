@@ -85,7 +85,8 @@
       "<rootDir>/libs/"
     ],
     "moduleNameMapper": {
-      "^@app/feature-auth(|/.*)$": "<rootDir>/libs/feature-auth/src/$1"
+      "^@app/feature-auth(|/.*)$": "<rootDir>/libs/feature-auth/src/$1",
+      "^@app/feature-chat(|/.*)$": "<rootDir>/libs/feature-chat/src/$1"
     }
   }
 }

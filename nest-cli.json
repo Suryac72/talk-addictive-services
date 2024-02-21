@@ -36,6 +36,24 @@
       "compilerOptions": {
         "tsConfigPath": "libs/feature-auth/tsconfig.lib.json"
       }
+    },
+    "chat": {
+      "type": "application",
+      "root": "apps/chat",
+      "entryFile": "main",
+      "sourceRoot": "apps/chat/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/chat/tsconfig.app.json"
+      }
+    },
+    "feature-chat": {
+      "type": "library",
+      "root": "libs/feature-chat",
+      "entryFile": "index",
+      "sourceRoot": "libs/feature-chat/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/feature-chat/tsconfig.lib.json"
+      }
     }
   }
 }
