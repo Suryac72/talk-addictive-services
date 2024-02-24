@@ -1,5 +1,5 @@
 {
-  "package-name": "git+https://suryac72:${NX_TOKEN}@github.com/suryac72/talk-addictive-services.git",
+  "package-name": "git+https://suryac72:${NX_TOKEN}@github.com/suryac72/talk-addictive-services.git" ,
   "name": "talk-addictive",
   "version": "0.0.1",
   "description": "",
