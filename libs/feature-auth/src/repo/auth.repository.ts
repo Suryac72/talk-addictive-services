@@ -76,22 +76,26 @@ export class AuthRepository {
         });
       }
 
-      //sign jwt and return to user
+      // Sign JWT and return to user
       const userDto = this.mapper.toDto(foundUser);
+      const accessToken = await this.authService.signToken(userDto);
 
-      const token = await this.authService.signToken(userDto);
-
-      if (!token) {
-        AppResult.fail({ code: USER_BAD_REQUEST_ERRORS.TOKEN_NOT_FOUND });
+      if (!accessToken) {
+        return AppResult.fail({
+          code: USER_BAD_REQUEST_ERRORS.TOKEN_NOT_FOUND,
+        });
       }
-      await response
-        .cookie('talk-addictive', token, {
-          expires: new Date(Date.now() + 9999999),
-          httpOnly: false,
-          secure: true,
-        })
-        .send({ userDto, token: token });
-      return AppResult.ok(response.send({ success: true }));
+
+      // Set cookie and send response
+      response.cookie('talk-addictive', accessToken, {
+        expires: new Date(Date.now() + 9999999),
+        httpOnly: false,
+        secure: true,
+      });
+
+      return AppResult.ok(
+        response.send({ success: true, accessToken: accessToken }),
+      );
     } catch (e) {
       console.log(e);
       return AppResult.fail({ code: 'INTERNAL_SERVER_ERROR' });
@@ -118,5 +122,27 @@ export class AuthRepository {
     hashedPassword: string,
   ): Promise<boolean> {
     return await bcrypt.compare(password, hashedPassword);
+  }
+
+  async validateUser(loginCreds: any) : Promise<AppResult<boolean> | AppResult<AppError>>{
+    const foundUser = await this.prisma.user_credentials.findUnique({
+      where: {
+        user_email: loginCreds.email.value,
+      },
+    });
+
+    if (!foundUser) {
+      return AppResult.fail({ code: USER_BAD_REQUEST_ERRORS.USER_NOT_FOUND });
+    }
+
+    if (
+      !this.comparePasswords(loginCreds.password.value, foundUser.user_password)
+    ) {
+      return AppResult.fail({
+        code: USER_BAD_REQUEST_ERRORS.INVALID_PASSWORD,
+      });
+    }
+
+    return AppResult.ok(true);
   }
 }

@@ -1,8 +1,9 @@
 import { NestFactory } from '@nestjs/core';
 import { ChatModule } from './chat.module';
+import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(ChatModule);
-  await app.listen(3402);
+  await app.listen(3401);
 }
 bootstrap();
