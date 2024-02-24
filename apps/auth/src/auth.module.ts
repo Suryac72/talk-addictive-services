@@ -6,11 +6,4 @@ import { AuthMiddleware } from '@suryac72/api-core-services';
   controllers: [],
   providers: [],
 })
-export class AuthModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AuthMiddleware).forRoutes({
-      path: '/auth/signup',
-      method: RequestMethod.POST,
-    });
-  }
-}
+export class AuthModule {}
