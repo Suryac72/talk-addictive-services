@@ -10,15 +10,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
         with:
-          node-version: '20'
+          node-version: 20.11.1
+          registry-url: https://npm.pkg.github.com/
+          scope: '@suryac72'
 
-      - name: Install Dependencies
-        run: |
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.NX_TOKEN }}" > ~/.npmrc
-          npm install --legacy-peer-deps
+      - run: npm install --legacy-peer-deps
+        env:
+          NX_TOKEN: ${{secrets.NX_TOKEN}}
