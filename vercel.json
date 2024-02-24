@@ -17,7 +17,12 @@
   "routes": [
     {
       "src": "/(.*)",
-      "dest": ["/dist/apps/auth/main.js", "dist/apps/chat/main.js"],
+      "dest": "/dist/apps/auth/main.js",
+      "methods": ["GET", "POST", "PATCH", "PUT", "DELETE"]
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/dist/apps/chat/main.js", 
       "methods": ["GET", "POST", "PATCH", "PUT", "DELETE"]
     }
   ]
