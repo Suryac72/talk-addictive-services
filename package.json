@@ -6,10 +6,11 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "nest build",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "auth:dev": "nest start auth --watch",
+    "auth:build": "nest build auth",
     "chat:dev": "nest start chat --watch",
+    "chat:build": "nest build chat",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/apps/talk-addictive/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
