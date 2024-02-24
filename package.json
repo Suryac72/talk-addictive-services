@@ -1,5 +1,4 @@
 {
-  "package-name": "git+https://suryac72:${NX_TOKEN}@github.com/suryac72/talk-addictive-services.git" ,
   "name": "talk-addictive",
   "version": "0.0.1",
   "description": "",
@@ -29,7 +28,7 @@
     "@nestjs/passport": "^10.0.3",
     "@nestjs/platform-express": "^10.3.3",
     "@prisma/client": "^5.9.1",
-    "@suryac72/api-core-services": "^0.0.5",
+    "@suryac72/api-core-services": "git+https://suryac72:${NX_TOKEN}@github.com/suryac72/talk-addictive-services.git",
     "@types/cookie-parser": "^1.4.6",
     "@types/passport-jwt": "^4.0.1",
     "bcrypt": "^5.1.1",
