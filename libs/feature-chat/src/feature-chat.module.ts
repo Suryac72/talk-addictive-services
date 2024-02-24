@@ -1,9 +1,13 @@
 import { Module } from '@nestjs/common';
 import { FeatureChatService } from './feature-chat.service';
 import { ChatController } from './chat.controller';
-import {AuthMiddleware, JwtStrategy } from '@suryac72/api-core-services';
+import {AuthMiddleware, DomainService, JwtStrategy } from '@suryac72/api-core-services';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaClient } from '@prisma/client';
+import { FindAllChatUseCase } from './use-cases/find-all-chats/find-all-chats.use-case';
+import { ChatRepository } from './repo/chat.repository';
+import { ChatMapper } from './mapper/chat.mapper';
+import { FindOneChatUseCase } from './use-cases/find-one-chat/find-one-chat.use-case';
 
 
 @Module({
@@ -14,6 +18,11 @@ import { PrismaClient } from '@prisma/client';
     JwtStrategy,
     JwtService,
     PrismaClient,
+    FindAllChatUseCase,
+    DomainService,
+    ChatRepository,
+    ChatMapper,
+    FindOneChatUseCase
   ],
   exports: [JwtStrategy],
   controllers: [ChatController],
