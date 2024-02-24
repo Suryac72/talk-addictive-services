@@ -1,17 +1,16 @@
 {
   "version": 2,
-  "scope": "talk_addictive_version_scope",
   "github": {
     "enabled": true
   },
   "builds": [
     {
       "src": "/dist/apps/auth/main.ts",
-      "use": "@now/node"
+      "use": "@vercel/node"
     },
     {
       "src": "/dist/apps/chat/main.ts*",
-      "use": "@now/static"
+      "use": "@vercel/node"
     }
   ],
   "routes": [
