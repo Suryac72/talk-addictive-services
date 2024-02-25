@@ -38,3 +38,34 @@ export const LOGIN_DOMAIN = {
         optional: false,
     },
 };
+
+export const FIND_ALL_USERS_DOMAIN = {
+    userId: {
+        validate: isString,
+        optional: true,
+    },
+    userName: {
+        validate: isString,
+        optional: true,
+    },
+    email: {
+        validate: isString && isEmail, 
+        optional: true,
+    },
+    password: {
+        validate: isString,
+        optional: true,
+    },
+    phoneNo: {
+        validate: isString,
+        optional: true,
+    },
+    role: {
+        validate: isNumber,
+        optional: true,
+    },
+    status: {
+        validate: isBoolean,
+        optional: true,
+    },
+};

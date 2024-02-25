@@ -9,12 +9,14 @@ import {
   AuthService,
   DomainService,
   JwtStrategy,
+  QueryBuilder,
 } from '@suryac72/api-core-services';
 import { JwtModule } from '@nestjs/jwt';
 import { UserLoginUseCase } from './use-cases/login-user/login-user.use-case';
 import { UserLogoutUseCase } from './use-cases/signout-user/signout-user.use-case';
 
 import { PassportModule } from '@nestjs/passport';
+import { FindAllUsersUseCase } from './use-cases/find-all-users/find-all-users.use-case';
 
 @Module({
   imports: [
@@ -37,6 +39,8 @@ import { PassportModule } from '@nestjs/passport';
     UserLoginUseCase,
     UserLogoutUseCase,
     JwtStrategy,
+    QueryBuilder,
+    FindAllUsersUseCase
   ],
   exports: [
     JwtStrategy, 

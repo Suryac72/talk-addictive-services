@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { SignupDTO } from './use-cases/signup-user/signup-user.dto';
 import { UserSignupUseCase } from './use-cases/signup-user/signup-user.use-case';
 import {
@@ -11,8 +11,8 @@ import { LoginDTO } from './use-cases/login-user/login-user.dto';
 import { UserLoginUseCase } from './use-cases/login-user/login-user.use-case';
 import { Response } from 'express';
 import { UserLogoutUseCase } from './use-cases/signout-user/signout-user.use-case';
-import { JwtService } from '@nestjs/jwt';
-
+import { FindAllUserQuery } from './use-cases/find-all-users/find-all-users.dto';
+import { FindAllUsersUseCase } from './use-cases/find-all-users/find-all-users.use-case';
 
 @Controller('auth')
 export class AuthController {
@@ -20,6 +20,7 @@ export class AuthController {
     private readonly userSignupUseCase: UserSignupUseCase,
     private readonly userLoginUseCase: UserLoginUseCase,
     private readonly userLogoutUseCase: UserLogoutUseCase,
+    private readonly findAllUsersUseCase: FindAllUsersUseCase
   ) {}
 
   @Get('/healthCheck')
@@ -70,6 +71,17 @@ export class AuthController {
       request: req,
       response: res,
     });
+    if (AppResult.isInvalid(result)) {
+      return result.getError();
+    }
+    return result.getValue();
+  }
+
+  @Get('/all')
+  async findAllUsers(
+    @Query() query: FindAllUserQuery,
+  ): Promise<ApiResponse<UserSignUpDTO[], unknown> | AppError> {
+    const result = await this.findAllUsersUseCase.execute({query});
     if (AppResult.isInvalid(result)) {
       return result.getError();
     }

@@ -8,10 +8,13 @@ import { FindAllChatUseCase } from './use-cases/find-all-chats/find-all-chats.us
 import { ChatRepository } from './repo/chat.repository';
 import { ChatMapper } from './mapper/chat.mapper';
 import { FindOneChatUseCase } from './use-cases/find-one-chat/find-one-chat.use-case';
+import { MongooseModule } from '@nestjs/mongoose';
 
 
 @Module({
-  imports:[],
+  imports:[
+    MongooseModule.forRoot(process.env.MONGO_DB_URL),
+  ],
   providers: [
     FeatureChatService,
     AuthMiddleware,

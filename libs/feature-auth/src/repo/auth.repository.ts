@@ -3,9 +3,10 @@ import { AuthMapper } from '../mapper/auth.mapper';
 import { PrismaClient } from '@prisma/client';
 import { UserSignUpDTO } from '../dtos/user.dto';
 import { USER_BAD_REQUEST_ERRORS } from '../const/auth.constants';
-import { AppError, AppResult, AuthService } from '@suryac72/api-core-services';
+import { AppError, AppResult, AuthService, QueryBuilder } from '@suryac72/api-core-services';
 import * as bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
+import { queryMaps } from './query-map';
 
 @Injectable()
 export class AuthRepository {
@@ -13,6 +14,7 @@ export class AuthRepository {
     private readonly mapper: AuthMapper,
     private readonly prisma: PrismaClient,
     private readonly authService: AuthService,
+    private readonly queryBuilder: QueryBuilder
   ) {}
   async signup(
     userDetails: any,
@@ -144,5 +146,20 @@ export class AuthRepository {
     }
 
     return AppResult.ok(true);
+  }
+
+  async findAllUsers(userDetails: any) : Promise<AppResult<AppError> | AppResult<UserSignUpDTO[]>> {
+      const fieldMappedToPersistence = this.mapper.toFindAllPersistence(userDetails);
+      const query = await this.queryBuilder.buildManyQuery(fieldMappedToPersistence,queryMaps,true);
+      console.log(query);
+      const result = await this.prisma.user_credentials.findMany({
+        where: {
+          ...query.where
+        }
+      })
+      const fieldMappedToDTO = result.map((res) => {
+        return this.mapper.toDto(res);
+      })
+      return AppResult.ok<UserSignUpDTO[]>(fieldMappedToDTO);
   }
 }
