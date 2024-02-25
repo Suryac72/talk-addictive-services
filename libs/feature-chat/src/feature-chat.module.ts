@@ -22,7 +22,8 @@ import { FindOneChatUseCase } from './use-cases/find-one-chat/find-one-chat.use-
     DomainService,
     ChatRepository,
     ChatMapper,
-    FindOneChatUseCase
+    FindOneChatUseCase,
+    AuthMiddleware
   ],
   exports: [JwtStrategy],
   controllers: [ChatController],
