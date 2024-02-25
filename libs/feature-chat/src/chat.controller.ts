@@ -8,6 +8,14 @@ import { FindOneChatUseCase } from './use-cases/find-one-chat/find-one-chat.use-
 @Controller('chats')
 export class ChatController {
   constructor(private readonly findAllChatUseCase:FindAllChatUseCase,private readonly findOneChatUseCase:FindOneChatUseCase) {}
+
+  
+  @Get('/healthCheck')
+  async healthCheck(
+  ){
+    return "Hello Chats...";
+  }
+  
   @Get('/all')
   async chats(@Req() req: Request, @Res() res : Response) {
     const result = await this.findAllChatUseCase.execute({request:req,response:res});

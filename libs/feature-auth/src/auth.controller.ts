@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { SignupDTO } from './use-cases/signup-user/signup-user.dto';
 import { UserSignupUseCase } from './use-cases/signup-user/signup-user.use-case';
 import {
@@ -20,8 +20,14 @@ export class AuthController {
     private readonly userSignupUseCase: UserSignupUseCase,
     private readonly userLoginUseCase: UserLoginUseCase,
     private readonly userLogoutUseCase: UserLogoutUseCase,
-    private readonly jwtService: JwtService
   ) {}
+
+  @Get('/healthCheck')
+  async healthCheck(
+  ){
+    return "Hello Auth Services";
+  }
+
 
   @Post('/signup')
   async signup(
