@@ -13,7 +13,7 @@
     "chat:dev": "nest start chat --watch",
     "chat:build": "nest build chat",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/apps/talk-addictive/main",
+    "start:prod": "concurrently \"node dist/apps/auth/main\" \"node dist/apps/chat/main\"",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
