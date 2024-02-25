@@ -1,27 +1,27 @@
 {
   "version": 2,
   "github": {
-    "enabled": true
+    "enabled": false
   },
   "builds": [
     {
-      "src": "apps/auth/**/*",
-      "use": "@vercel/node"
+      "src": "/dist/apps/auth/main.js",
+      "use": "@now/node"
     },
     {
-      "src": "apps/chat/**/*",
-      "use": "@vercel/node"
+      "src": "/dist/apps/chat/main.js",
+      "use": "@now/node"
     }
   ],
   "routes": [
     {
       "src": "/auth/(.*)",
-      "dest": "apps/auth/main.ts",
+      "dest": "/dist/apps/auth/main.ts",
       "methods": ["GET", "POST", "PATCH", "PUT", "DELETE"]
     },
     {
       "src": "/chats/(.*)",
-      "dest": "apps/chat/main.ts", 
+      "dest": "/dist/apps/chat/main.ts", 
       "methods": ["GET", "POST", "PATCH", "PUT", "DELETE"]
     }
   ]
