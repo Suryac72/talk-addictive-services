@@ -6,6 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
+    "start": "concurrently \"nest start auth --watch\" \"nest start chat --watch\"",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "auth:dev": "nest start auth --watch",
     "auth:build": "nest build auth",
