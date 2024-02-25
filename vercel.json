@@ -5,23 +5,23 @@
   },
   "builds": [
     {
-      "src": "/dist/apps/auth/main.js",
+      "src": "apps/auth/src/main.ts",
       "use": "@vercel/node"
     },
     {
-      "src": "/dist/apps/chat/main.js",
+      "src": "apps/chat/src/main.ts",
       "use": "@vercel/node"
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "/dist/apps/auth/main.ts",
+      "dest": "apps/auth/src/main.ts",
       "methods": ["GET", "POST", "PATCH", "PUT", "DELETE"]
     },
     {
       "src": "/(.*)",
-      "dest": "/dist/apps/chat/main.ts", 
+      "dest": "apps/chat/src/main.ts", 
       "methods": ["GET", "POST", "PATCH", "PUT", "DELETE"]
     }
   ]
