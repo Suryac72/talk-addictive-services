@@ -7,6 +7,7 @@ import { PrismaClient } from '@prisma/client';
 import { ConfigService } from '@nestjs/config';
 import {
   AuthService,
+  COOKIE_NAME,
   DomainService,
   JwtStrategy,
   QueryBuilder,
@@ -17,6 +18,10 @@ import { UserLogoutUseCase } from './use-cases/signout-user/signout-user.use-cas
 
 import { PassportModule } from '@nestjs/passport';
 import { FindAllUsersUseCase } from './use-cases/find-all-users/find-all-users.use-case';
+import { ChatSchema } from '@app/feature-chat/models/chat.schema';
+import { MessageSchema } from '@app/feature-chat/models/message.schema';
+import { UserSchema } from '@app/feature-chat/models/user.schema';
+import { MongooseModule } from '@nestjs/mongoose';
 
 @Module({
   imports: [
@@ -26,6 +31,12 @@ import { FindAllUsersUseCase } from './use-cases/find-all-users/find-all-users.u
         expiresIn: process.env.JWT_TOKEN_EXPIRATION,
       },
     }),
+    MongooseModule.forRoot(process.env.MONGO_DB_URL, {
+      dbName: COOKIE_NAME,
+    }),
+    MongooseModule.forFeature([{ name: 'Chat', schema: ChatSchema }]),
+    MongooseModule.forFeature([{ name: 'Message', schema: MessageSchema }]),
+    MongooseModule.forFeature([{ name: 'User', schema: UserSchema }]),
     PassportModule,
   ],
   providers: [
@@ -49,6 +60,5 @@ import { FindAllUsersUseCase } from './use-cases/find-all-users/find-all-users.u
 })
 export class FeatureAuthModule {
   constructor() {
-    console.log(process.env.JWT_SECRET);
   }
 }

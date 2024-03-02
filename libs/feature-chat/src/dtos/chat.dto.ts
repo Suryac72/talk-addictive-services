@@ -4,6 +4,7 @@ export class User {
     email: string;
 }
 export class ChatDTO {
+    userId:string;
     isGroupChat: boolean;
     users: User[];
     _id: string;

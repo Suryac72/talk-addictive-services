@@ -1,3 +1,3 @@
 export class ChatParams {
-    id: string;
+    userId: string;
 }

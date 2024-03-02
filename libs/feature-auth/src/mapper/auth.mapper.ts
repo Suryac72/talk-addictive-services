@@ -30,12 +30,12 @@ export class AuthMapper {
 
   toDto(userDetails: user_credentials): UserSignUpDTO {
     const dto: UserSignUpDTO = {} as UserSignUpDTO;
+    dto.id = userDetails.user_id,
     dto.email = userDetails.user_email;
     dto.phoneNo = userDetails.user_phone_no;
     dto.userName = userDetails.user_name;
     dto.role = Number(userDetails.user_role);
     dto.status = String(userDetails.user_status);
-    dto.userId = userDetails.user_id;
     return dto;
   }
 

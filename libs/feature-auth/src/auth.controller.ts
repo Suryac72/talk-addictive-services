@@ -55,9 +55,9 @@ export class AuthController {
       response: res,
     });
     if (AppResult.isInvalid(result)) {
-      return result.getError();
+      return res.send(result.getError());
     }
-    return result.getValue();
+    return res.send(result.getValue());
   }
 
   @Post('/logout')

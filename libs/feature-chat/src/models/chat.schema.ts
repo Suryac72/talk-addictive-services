@@ -1,7 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { User } from '../dtos/chat.dto';
 import mongoose from 'mongoose';
 import { Message } from './message.schema';
+import { Document } from 'mongoose';
+import { User } from './user.schema';
 
 @Schema({ timestamps: true})
 export class Chat extends Document {
@@ -9,12 +10,14 @@ export class Chat extends Document {
   chatName: string;
   @Prop({ default: false })
   isGroupChat: Boolean;
-  @Prop({ type: mongoose.Schema.Types.ObjectId })
-  users: User[];
+  @Prop({ type: [{ type: String, ref: 'User' }] }) 
+  users: string[];
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Message' })
-  latestMessage : Message;
-  @Prop({ type: mongoose.Schema.Types.ObjectId })
-  groupAdmin : User;
+  latestMessage: Message;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+  groupAdmin: User;
 }
+
+
 
 export const ChatSchema = SchemaFactory.createForClass(Chat);

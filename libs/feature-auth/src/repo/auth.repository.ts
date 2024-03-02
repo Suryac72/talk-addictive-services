@@ -7,6 +7,9 @@ import { AppError, AppResult, AuthService, QueryBuilder } from '@suryac72/api-co
 import * as bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
 import { queryMaps } from './query-map';
+import { InjectModel } from '@nestjs/mongoose';
+import { User } from '@app/feature-chat/models/user.schema';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class AuthRepository {
@@ -14,7 +17,8 @@ export class AuthRepository {
     private readonly mapper: AuthMapper,
     private readonly prisma: PrismaClient,
     private readonly authService: AuthService,
-    private readonly queryBuilder: QueryBuilder
+    private readonly queryBuilder: QueryBuilder,
+    @InjectModel('User') private userModel: Model<User>,
   ) {}
   async signup(
     userDetails: any,
@@ -41,6 +45,8 @@ export class AuthRepository {
         }),
       ]);
 
+      const user = new this.userModel({email:fieldMappedToPersistence.user_email,userId:result[0].user_id});
+      user.save()
       const resultantObject = this.mapper.toDto(result[0]);
       return AppResult.ok(resultantObject);
     } catch (e) {
@@ -151,7 +157,6 @@ export class AuthRepository {
   async findAllUsers(userDetails: any) : Promise<AppResult<AppError> | AppResult<UserSignUpDTO[]>> {
       const fieldMappedToPersistence = this.mapper.toFindAllPersistence(userDetails);
       const query = await this.queryBuilder.buildManyQuery(fieldMappedToPersistence,queryMaps,true);
-      console.log(query);
       const result = await this.prisma.user_credentials.findMany({
         where: {
           ...query.where

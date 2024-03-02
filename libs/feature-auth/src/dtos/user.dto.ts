@@ -10,7 +10,7 @@ export class UserSignUpDTO {
     phoneNo: string;
     role ?: number;
     status?: string;
-    userId?:string;
+    id?:string;
 }
 
 export class LoginResponse {
