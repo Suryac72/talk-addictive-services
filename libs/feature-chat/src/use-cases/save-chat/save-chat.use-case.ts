@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ApiResponse, AppError, AppResult, DomainService, UseCase } from '@suryac72/api-core-services';
 import { Request,Response } from 'express';
-import { chats } from '@app/feature-chat/data/data';
 import { ChatRequestDTO } from './save-chat.dto';
 import { ChatRepository } from '@app/feature-chat/repo/chat.repository';
 import { ChatMapper } from '@app/feature-chat/mapper/chat.mapper';

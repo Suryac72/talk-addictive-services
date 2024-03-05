@@ -15,6 +15,13 @@ import { SaveChatUseCase } from './use-cases/save-chat/save-chat.use-case';
 import { UserService } from './services/user.service';
 import { MessageRepository } from './repo/message.repository';
 import { ChatGateway } from './services/chat.gateway';
+import { SendMessageUseCase } from './use-cases/send-message/send-message.use-case';
+import { FindAllMessageUseCase } from './use-cases/find-all-message/find-all-message.use-case';
+import { AddToGroupChatUseCase } from './use-cases/add-to-group-chat/add-to-group-chat.use-case';
+import { RemoveUserFromGroupUseCase } from './use-cases/remove-from-group-chat/remove-from-group-chat.use-case';
+import { RenameGroupChatUseCase } from './use-cases/rename-group-chat/rename-group-chat.use-case';
+import { CreateGroupChatUseCase } from './use-cases/create-group-chat/create-group-chat.use-case';
+import { MessageController } from './message.controller';
 
 @Global()
 @Module({
@@ -40,9 +47,15 @@ import { ChatGateway } from './services/chat.gateway';
     SaveChatUseCase,
     UserService,
     MessageRepository,
-    ChatGateway
+    ChatGateway,
+    SendMessageUseCase,
+    FindAllMessageUseCase,
+    AddToGroupChatUseCase,
+    RemoveUserFromGroupUseCase,
+    RenameGroupChatUseCase,
+    CreateGroupChatUseCase
   ],
   exports: [JwtStrategy],
-  controllers: [ChatController],
+  controllers: [ChatController,MessageController],
 })
 export class FeatureChatModule {}

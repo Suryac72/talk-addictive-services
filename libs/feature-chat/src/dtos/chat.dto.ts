@@ -1,6 +1,6 @@
 export class User {
     userId?:string;
-    name: string;
+    name?: string;
     email: string;
 }
 export class ChatDTO {

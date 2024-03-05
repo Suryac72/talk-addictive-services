@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthRepository } from './repo/auth.repository';
 import { UserSignupUseCase } from './use-cases/signup-user/signup-user.use-case';
@@ -51,7 +51,8 @@ import { MongooseModule } from '@nestjs/mongoose';
     UserLogoutUseCase,
     JwtStrategy,
     QueryBuilder,
-    FindAllUsersUseCase
+    FindAllUsersUseCase,
+    Logger
   ],
   exports: [
     JwtStrategy, 

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Logger, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { SignupDTO } from './use-cases/signup-user/signup-user.dto';
 import { UserSignupUseCase } from './use-cases/signup-user/signup-user.use-case';
 import {
@@ -20,7 +20,8 @@ export class AuthController {
     private readonly userSignupUseCase: UserSignupUseCase,
     private readonly userLoginUseCase: UserLoginUseCase,
     private readonly userLogoutUseCase: UserLogoutUseCase,
-    private readonly findAllUsersUseCase: FindAllUsersUseCase
+    private readonly findAllUsersUseCase: FindAllUsersUseCase,
+    private readonly loggerService: Logger
   ) {}
 
   @Get('/healthCheck')
@@ -34,8 +35,10 @@ export class AuthController {
   async signup(
     @Body() requestBody: SignupDTO,
   ): Promise<ApiResponse<UserSignUpDTO, unknown> | AppError> {
+    this.loggerService.log("Executing userSignupUseCase","signup-user.use-case.ts");
     const result = await this.userSignupUseCase.execute({ body: requestBody });
     if (AppResult.isInvalid(result)) {
+      this.loggerService.error("Error in use-case Response of userSignupUseCase:",result.getError());
       return result.getError();
     }
     return result.getValue();
