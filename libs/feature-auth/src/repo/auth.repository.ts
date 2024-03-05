@@ -20,6 +20,12 @@ export class AuthRepository {
     private readonly queryBuilder: QueryBuilder,
     @InjectModel('User') private userModel: Model<User>,
   ) {}
+
+  /**
+   * Signup User 
+   * @param userDetails 
+   * @returns 
+   */
   async signup(
     userDetails: any,
   ): Promise<AppResult<UserSignUpDTO> | AppResult<AppError>> {
@@ -55,6 +61,14 @@ export class AuthRepository {
     }
   }
 
+
+  /**
+   * Login User
+   * @param loginCreds 
+   * @param request 
+   * @param response 
+   * @returns 
+   */
   async loginUser(
     loginCreds: any,
     request: Request,
@@ -99,6 +113,7 @@ export class AuthRepository {
         expires: new Date(Date.now() + 9999999),
         httpOnly: false,
         secure: true,
+        sameSite:'lax'
       });
 
       return AppResult.ok(
@@ -110,6 +125,12 @@ export class AuthRepository {
     }
   }
 
+  /**
+   * Logout User
+   * @param request 
+   * @param response 
+   * @returns 
+   */
   async logOut(
     request: Request,
     response: Response,
@@ -125,6 +146,12 @@ export class AuthRepository {
     }
   }
 
+  /**
+   * Compares raw and hashed password
+   * @param password 
+   * @param hashedPassword 
+   * @returns 
+   */
   async comparePasswords(
     password: string,
     hashedPassword: string,
@@ -154,6 +181,11 @@ export class AuthRepository {
     return AppResult.ok(true);
   }
 
+  /**
+   * Find all users
+   * @param userDetails 
+   * @returns 
+   */
   async findAllUsers(userDetails: any) : Promise<AppResult<AppError> | AppResult<UserSignUpDTO[]>> {
       const fieldMappedToPersistence = this.mapper.toFindAllPersistence(userDetails);
       const query = await this.queryBuilder.buildManyQuery(fieldMappedToPersistence,queryMaps,true);
