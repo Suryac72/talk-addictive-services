@@ -1,4 +1,4 @@
-import { Global, Module } from '@nestjs/common';
+import { Global, Logger, Module } from '@nestjs/common';
 import { FeatureChatService } from './feature-chat.service';
 import { ChatController } from './chat.controller';
 import { AuthMiddleware, COOKIE_NAME, DomainService, JwtStrategy } from '@suryac72/api-core-services';
@@ -22,6 +22,7 @@ import { RemoveUserFromGroupUseCase } from './use-cases/remove-from-group-chat/r
 import { RenameGroupChatUseCase } from './use-cases/rename-group-chat/rename-group-chat.use-case';
 import { CreateGroupChatUseCase } from './use-cases/create-group-chat/create-group-chat.use-case';
 import { MessageController } from './message.controller';
+import { MessageMapper } from './mapper/message.mapper';
 
 @Global()
 @Module({
@@ -53,7 +54,9 @@ import { MessageController } from './message.controller';
     AddToGroupChatUseCase,
     RemoveUserFromGroupUseCase,
     RenameGroupChatUseCase,
-    CreateGroupChatUseCase
+    CreateGroupChatUseCase,
+    Logger,
+    MessageMapper
   ],
   exports: [JwtStrategy],
   controllers: [ChatController,MessageController],

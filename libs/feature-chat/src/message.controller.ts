@@ -52,7 +52,6 @@ export class MessageController {
     if (AppResult.isInvalid(result)) {
       return response.status(400).send(result);
     }
-    console.log(result);
     return response.send(result.getValue());
   }
 }

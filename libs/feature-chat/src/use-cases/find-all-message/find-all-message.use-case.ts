@@ -10,6 +10,8 @@ import { Request, Response } from 'express';
 import { MessageParamsDTO } from './find-all-message.dto';
 import { MessageRepository } from '@app/feature-chat/repo/message.repository';
 import { FIND_ALL_MESSAGE } from '@app/feature-chat/domain/message.domain';
+import { MESSAGE_BAD_REQUEST_ERRORS } from '@app/feature-chat/constants/message.constants';
+import { FetchMessageDTO } from '@app/feature-chat/dtos/message.dto';
 
 type RequestBody = {
   params: MessageParamsDTO;
@@ -17,7 +19,7 @@ type RequestBody = {
   response: Response;
 };
 
-type ResponseBody = AppResult<AppError> | AppResult<ApiResponse<any, unknown>>;
+type ResponseBody = AppResult<AppError> | AppResult<ApiResponse<FetchMessageDTO[], unknown>>;
 
 @Injectable()
 export class FindAllMessageUseCase implements UseCase<RequestBody, ResponseBody> {
@@ -36,17 +38,16 @@ export class FindAllMessageUseCase implements UseCase<RequestBody, ResponseBody>
       if (AppResult.isInvalid(fetchMessageDomain)) {
         return fetchMessageDomain;
       }
-      console.log(fetchMessageDomain.getValue());
       const messages = await this.messageRepository.fetchMessage(
         fetchMessageDomain.getValue(),
       );
       if(AppResult.isInvalid(messages)){
         return messages;
       }
-      return AppResult.ok<any>(messages);
+      return AppResult.ok<ApiResponse<FetchMessageDTO[], unknown>>({data: messages.getValue()});
     } catch (e) {
       console.log(e);
-      return AppResult.fail({ code: 'MESSAGE_UNEXPECTED_ERROR' });
+      return AppResult.fail({ code: MESSAGE_BAD_REQUEST_ERRORS.MESSAGE_UNEXPECTED_ERROR });
     }
   }
 }

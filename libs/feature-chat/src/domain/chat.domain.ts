@@ -56,7 +56,7 @@ export const CREATE_GROUP_CHAT = {
         optional: false
     },
     groupAdmin:{
-        validate: isString,
+        validate: USER_DOMAIN,
         optional: false,
         subDomain: true
     },

@@ -3,7 +3,6 @@ import { ApiResponse, AppError, AppResult, DomainService, UseCase } from '@surya
 import { Request,Response } from 'express';
 import { ChatRequestDTO } from './save-chat.dto';
 import { ChatRepository } from '@app/feature-chat/repo/chat.repository';
-import { ChatMapper } from '@app/feature-chat/mapper/chat.mapper';
 import { SAVE_CHAT_DOMAIN } from '@app/feature-chat/domain/chat.domain';
 import { CHAT_BAD_REQUEST_ERRORS } from '@app/feature-chat/constants/chat.constants';
 
@@ -23,7 +22,6 @@ export class SaveChatUseCase implements UseCase<RequestBody, any> {
   constructor(
     private chatRepository: ChatRepository,
     private readonly domainService: DomainService,
-    private readonly chatMapper: ChatMapper
   ) {}
 
   async execute(requestObj: RequestBody): Promise<ResponseBody> {

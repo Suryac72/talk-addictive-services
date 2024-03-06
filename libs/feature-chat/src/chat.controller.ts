@@ -12,6 +12,9 @@ import { RemoveUserFromGroupUseCase } from './use-cases/remove-from-group-chat/r
 import { RenameGroupRequestDTO } from './use-cases/rename-group-chat/rename-group-chat.dto';
 import { GroupChatRequestBodyDTO } from './use-cases/add-to-group-chat/add-to-group-chat.dto';
 import { AddToGroupChatUseCase } from './use-cases/add-to-group-chat/add-to-group-chat.use-case';
+import { ChatRequestDTO } from './use-cases/save-chat/save-chat.dto';
+
+
 @Controller('chats')
 export class ChatController {
   constructor(
@@ -43,7 +46,7 @@ export class ChatController {
 
   @Post('/add')
   async createChat(
-    @Body() body: ChatDTO,
+    @Body() body: ChatRequestDTO,
     @Req() request: Request,
     @Res() response: Response,
   ) {

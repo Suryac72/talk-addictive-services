@@ -1,10 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { AppResult, AppError } from '@suryac72/api-core-services';
 import { Model } from 'mongoose';
 import { Chat } from '../models/chat.schema';
 import { User } from '../models/user.schema';
 import { Message } from '../models/message.schema';
+import { MESSAGE_BAD_REQUEST_ERRORS } from '../constants/message.constants';
+import { MessageMapper } from '../mapper/message.mapper';
 
 @Injectable()
 export class MessageRepository {
@@ -12,7 +14,11 @@ export class MessageRepository {
     @InjectModel('Chat') private chatModel: Model<Chat>,
     @InjectModel('User') private userModel: Model<User>,
     @InjectModel('Message') private messageModel: Model<Message>,
-  ) {}
+    private readonly logger: Logger,
+    private readonly messageMapper: MessageMapper
+
+  ) {
+  }
 
   async getUserById(userId: string): Promise<User | null> {
     return this.userModel.findOne({ userId }).exec();
@@ -34,10 +40,11 @@ export class MessageRepository {
         })
         .populate('sender', 'email userId')
         .populate('chat');
-      return AppResult.ok(messages);
+      const mappedResult = this.messageMapper.toFetchMessageDTO(messages);
+      return AppResult.ok(mappedResult);
     } catch (error) {
-      console.error(error);
-      return AppResult.fail({ code: 'MESSAGE_UNEXPECTED_ERROR' });
+      this.logger.error('Error from catch: fetchMessage',error);
+      return AppResult.fail({ code: MESSAGE_BAD_REQUEST_ERRORS.MESSAGE_UNEXPECTED_ERROR });
     }
   }
 
@@ -61,8 +68,8 @@ export class MessageRepository {
       let resultantMessage: any = await this.messageModel.create(messageBody);
       resultantMessage = await this.messageModel
         .findById(resultantMessage._id)
-        .populate('sender', 'email userId')
         .populate('chat')
+        .populate('sender', 'email userId')
         .exec();
 
       resultantMessage = await this.userModel.populate(resultantMessage, {

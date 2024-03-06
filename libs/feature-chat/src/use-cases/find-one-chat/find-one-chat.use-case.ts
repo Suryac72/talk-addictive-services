@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { ApiResponse, AppError, AppResult, DomainService, UseCase } from '@suryac72/api-core-services';
 import { Request,Response } from 'express';
-import { ChatDTO } from '@app/feature-chat/dtos/chat.dto';
+import { ChatDTO, FindOneChatDTO } from '@app/feature-chat/dtos/chat.dto';
 import { chats } from '@app/feature-chat/data/data';
 import { ChatParams } from './find-one-chat.dto';
 import { ChatRepository } from '@app/feature-chat/repo/chat.repository';
 import { FIND_ONE_CHAT } from '@app/feature-chat/domain/chat.domain';
+import { CHAT_BAD_REQUEST_ERRORS } from '@app/feature-chat/constants/chat.constants';
 
 
 type RequestBody = {
@@ -16,7 +17,7 @@ type RequestBody = {
 
 type ResponseBody =
   | AppResult<AppError>
-  |AppResult<ApiResponse<ChatDTO, unknown>>
+  |AppResult<ApiResponse<FindOneChatDTO, unknown>>
 
 @Injectable()
 export class FindOneChatUseCase implements UseCase<RequestBody, ResponseBody> {
@@ -34,11 +35,14 @@ export class FindOneChatUseCase implements UseCase<RequestBody, ResponseBody> {
         return fetchChatDomain;
       }
       const chat = await this.chatRepository.fetchChat(fetchChatDomain.getValue(),request);
-      return AppResult.ok<any>(chat);
+      if(AppResult.isInvalid(chat)){
+        return chat;
+      }
+      return AppResult.ok<ApiResponse<FindOneChatDTO, unknown>>({data:chat.getValue()});
     }
     catch(e){
         console.log(e);
-        return AppResult.fail({code: 'CHAT_UNEXPECTED_ERROR'});
+        return AppResult.fail({code: CHAT_BAD_REQUEST_ERRORS.CHAT_UNEXPECTED_ERROR});
     }
   }
 }

@@ -8,6 +8,7 @@ import { Request } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../services/user.service';
 import { User as UserDTO } from '../dtos/chat.dto';
+import { ChatMapper } from '../mapper/chat.mapper';
 @Injectable()
 export class ChatRepository {
   constructor(
@@ -15,6 +16,7 @@ export class ChatRepository {
     @InjectModel('User') private userModel: Model<User>,
     private readonly jwtService: JwtService,
     private readonly userService: UserService,
+    private readonly chatMapper: ChatMapper,
   ) {}
 
   /**
@@ -99,7 +101,6 @@ export class ChatRepository {
       const userIds = [chat.userId.value];
       // Find users in the database by their IDs
       const users = await this.userService.getUsersByUserIds(userIds);
-      console.log(users);
       const chats = await this.chatModel
         .find({ users: { $elemMatch: { $eq: users[0]._id } } })
         .populate('users')
@@ -113,7 +114,8 @@ export class ChatRepository {
           });
           return results;
         });
-      return AppResult.ok(chats);
+      const mappedResult = this.chatMapper.toFetchChatDTO(chats);
+      return AppResult.ok(mappedResult);
     } catch (error) {
       console.error(error);
       return AppResult.fail({ code: 'Failed to save chat' });
@@ -136,35 +138,38 @@ export class ChatRepository {
         cookie.substring(COOKIE_NAME.length + 1).split(';')[0],
       );
       if (!userFromSession) {
-        AppResult.fail({ code: 'USER_SESSION_NOT_FOUND' });
+        return AppResult.fail({ code: 'USER_SESSION_NOT_FOUND' });
       }
-      const users = chat.users.map((user) => {
+
+      const users = chat.users.value.map((user) => {
         const obj: UserDTO = {
           userId: user.userId.value,
           email: user.email.value,
         };
         return obj;
       });
-      let userDetails = JSON.parse(users);
-      userDetails.push({
+
+      users.push({
         userId: userFromSession.userId,
         email: userFromSession.email,
       });
 
       const usersCollection = await this.userService.getUsersByUserIds(
-        userDetails.map((user) => user.userId),
+        users.map((user) => user.userId),
       );
+
       const isGroupChat = await this.chatModel.findOne({
         isGroupChat: true,
-        users: { $contains: usersCollection },
+        users: { $all: usersCollection.map((user) => user._id) },
       });
 
       if (isGroupChat) {
         return AppResult.fail({ code: 'GROUP_CHAT_ALREADY_EXISTS' });
       }
+
       const groupChat = await this.chatModel.create({
         chatName: chat.chatName.value,
-        users: usersCollection,
+        users: usersCollection.map((user) => user._id),
         isGroupChat: true,
         groupAdmin: usersCollection.find(
           (user) => user.userId === userFromSession.userId,
@@ -175,6 +180,7 @@ export class ChatRepository {
         .findOne({ _id: groupChat._id })
         .populate('users')
         .populate('groupAdmin');
+
       return AppResult.ok(fullChat);
     } catch (error) {
       console.error(error);
