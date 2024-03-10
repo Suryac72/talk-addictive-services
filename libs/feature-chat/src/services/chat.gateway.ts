@@ -1,10 +1,11 @@
 import { SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { MessageRepository } from '../repo/message.repository';
+import { Logger } from '@nestjs/common';
 
 @WebSocketGateway()
 export class ChatGateway {
-constructor(private readonly messageRepository: MessageRepository) {}
+constructor(private readonly messageRepository: MessageRepository,private readonly logger:Logger) {}
   @WebSocketServer() server: Server;
 
   @SubscribeMessage('setup')
@@ -20,7 +21,7 @@ constructor(private readonly messageRepository: MessageRepository) {}
   @SubscribeMessage('join chat')
   handleJoinChat(client: Socket, room: string) {
     client.join(room);
-    console.log(`User Joined Room: ${room}`);
+    this.logger.log(`User Joined Room: ${room}`);
   }
 
   @SubscribeMessage('typing')
@@ -37,7 +38,7 @@ constructor(private readonly messageRepository: MessageRepository) {}
   handleNewMessage(client: Socket, newMessageRecieved: any) {
     const chat = newMessageRecieved.chat;
 
-    if (!chat.users) return console.log('chat.users not defined');
+    if (!chat.users) return this.logger.log('chat.users not defined');
 
     chat.users.forEach((user: any) => {
       if (user._id === newMessageRecieved.sender._id) return;
@@ -46,6 +47,6 @@ constructor(private readonly messageRepository: MessageRepository) {}
   }
 
   handleDisconnect(client: Socket) {
-    console.log('Client disconnected');
+    this.logger.log('Client disconnected');
   }
 }

@@ -60,7 +60,7 @@ export class RenameGroupChatUseCase
       });
     } catch (e) {
       this.logger.error('Error from catch:RenameGroupChatUseCase', e);
-      return AppResult.fail({ code: 'CHAT_UNEXPECTED_ERROR' });
+      return AppResult.fail({ code: CHAT_BAD_REQUEST_ERRORS.CHAT_UNEXPECTED_ERROR });
     }
   }
 }

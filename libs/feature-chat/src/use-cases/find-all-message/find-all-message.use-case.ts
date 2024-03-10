@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import {
   ApiResponse,
   AppError,
@@ -26,6 +26,7 @@ export class FindAllMessageUseCase implements UseCase<RequestBody, ResponseBody>
   constructor(
     private messageRepository: MessageRepository,
     private readonly domainService: DomainService,
+    private readonly loggerService: Logger
   ) {}
 
   async execute(requestObj: RequestBody): Promise<ResponseBody> {
@@ -42,11 +43,12 @@ export class FindAllMessageUseCase implements UseCase<RequestBody, ResponseBody>
         fetchMessageDomain.getValue(),
       );
       if(AppResult.isInvalid(messages)){
+        this.loggerService.error('Error from repository:fetchMessage');
         return messages;
       }
       return AppResult.ok<ApiResponse<FetchMessageDTO[], unknown>>({data: messages.getValue()});
     } catch (e) {
-      console.log(e);
+      this.loggerService.error('Error from catch:FindAllMessageUseCase', e);
       return AppResult.fail({ code: MESSAGE_BAD_REQUEST_ERRORS.MESSAGE_UNEXPECTED_ERROR });
     }
   }

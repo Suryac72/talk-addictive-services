@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import {
   ApiResponse,
   AppError,
@@ -26,6 +26,7 @@ export class RemoveUserFromGroupUseCase implements UseCase<RequestBody, Response
   constructor(
     private chatRepository: ChatRepository,
     private readonly domainService: DomainService,
+    private readonly loggerService: Logger
   ) {}
 
   async execute(requestObj: RequestBody): Promise<ResponseBody> {
@@ -48,12 +49,13 @@ export class RemoveUserFromGroupUseCase implements UseCase<RequestBody, Response
         request,
       );
       if (AppResult.isInvalid(saveChats)) {
+        this.loggerService.error('Error from repository:removeFromGroupChat');
         return saveChats;
       }
       return AppResult.ok<ApiResponse<AddToGroupDTO, unknown>>({data: saveChats.getValue()});
     } catch (e) {
-      console.log(e);
-      return AppResult.fail({ code: 'CHAT_UNEXPECTED_ERROR' });
+      this.loggerService.error('Error from catch:RemoveUserFromGroupUseCase', e);
+      return AppResult.fail({ code: CHAT_BAD_REQUEST_ERRORS.CHAT_UNEXPECTED_ERROR });
     }
   }
 }

@@ -199,7 +199,6 @@ export class ChatRepository {
       const mappedResponse = this.chatMapper.toGroupChatDTO(fullChat);
       return AppResult.ok(mappedResponse);
     } catch (error) {
-      console.log(error);
       this.logger.error('Error from catch: createGroupChat', error);
       return AppResult.fail({ code: 'Failed to save chat' });
     }

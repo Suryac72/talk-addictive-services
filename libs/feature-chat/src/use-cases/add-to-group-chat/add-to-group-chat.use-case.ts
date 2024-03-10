@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import {
   ApiResponse,
   AppError,
@@ -19,13 +19,18 @@ type RequestBody = {
   response: Response;
 };
 
-type ResponseBody = AppResult<AppError> | AppResult<ApiResponse<AddToGroupDTO, unknown>>;
+type ResponseBody =
+  | AppResult<AppError>
+  | AppResult<ApiResponse<AddToGroupDTO, unknown>>;
 
 @Injectable()
-export class AddToGroupChatUseCase implements UseCase<RequestBody, ResponseBody> {
+export class AddToGroupChatUseCase
+  implements UseCase<RequestBody, ResponseBody>
+{
   constructor(
     private chatRepository: ChatRepository,
     private readonly domainService: DomainService,
+    private readonly loggerService: Logger,
   ) {}
 
   async execute(requestObj: RequestBody): Promise<ResponseBody> {
@@ -48,12 +53,17 @@ export class AddToGroupChatUseCase implements UseCase<RequestBody, ResponseBody>
         request,
       );
       if (AppResult.isInvalid(saveChats)) {
+        this.loggerService.error('Error from repository:addUserToGroupChat');
         return saveChats;
       }
-      return AppResult.ok<ApiResponse<AddToGroupDTO, unknown>>({data:saveChats.getValue()});
+      return AppResult.ok<ApiResponse<AddToGroupDTO, unknown>>({
+        data: saveChats.getValue(),
+      });
     } catch (e) {
-      console.log(e);
-      return AppResult.fail({ code: CHAT_BAD_REQUEST_ERRORS.CHAT_UNEXPECTED_ERROR});
+      this.loggerService.error('Error from catch:AddToGroupChatUseCase', e);
+      return AppResult.fail({
+        code: CHAT_BAD_REQUEST_ERRORS.CHAT_UNEXPECTED_ERROR,
+      });
     }
   }
 }
