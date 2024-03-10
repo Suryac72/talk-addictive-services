@@ -15,3 +15,12 @@ export class ChatDTO {
 export class FindOneChatDTO extends ChatDTO {
   chatId: string;
 }
+
+export class  UserIdDTO {
+  userId: string;
+} 
+export class AddToGroupDTO {
+  status: boolean;
+  chatId: string;
+  userId: UserIdDTO[];
+}

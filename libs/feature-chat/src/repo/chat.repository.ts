@@ -1,5 +1,10 @@
-import { Injectable } from '@nestjs/common';
-import { AppError, AppResult, COOKIE_NAME } from '@suryac72/api-core-services';
+import { Injectable, Logger } from '@nestjs/common';
+import {
+  AppError,
+  AppResult,
+  COOKIE_NAME,
+  USER_BAD_REQUEST_ERRORS,
+} from '@suryac72/api-core-services';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Chat } from '../models/chat.schema';
@@ -7,8 +12,14 @@ import { User } from '../models/user.schema';
 import { Request } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../services/user.service';
-import { User as UserDTO } from '../dtos/chat.dto';
+import {
+  AddToGroupDTO,
+  FindOneChatDTO,
+  User as UserDTO,
+} from '../dtos/chat.dto';
 import { ChatMapper } from '../mapper/chat.mapper';
+import { CHAT_BAD_REQUEST_ERRORS } from '../constants/chat.constants';
+import { ChatRequestDTO } from '../use-cases/save-chat/save-chat.dto';
 @Injectable()
 export class ChatRepository {
   constructor(
@@ -17,6 +28,7 @@ export class ChatRepository {
     private readonly jwtService: JwtService,
     private readonly userService: UserService,
     private readonly chatMapper: ChatMapper,
+    private readonly logger: Logger,
   ) {}
 
   /**
@@ -28,7 +40,7 @@ export class ChatRepository {
   async saveChat(
     chat: any,
     request: Request,
-  ): Promise<AppResult<any> | AppResult<AppError>> {
+  ): Promise<AppResult<FindOneChatDTO[]> | AppResult<AppError>> {
     try {
       const cookie = request?.headers?.cookie;
       const userDetails = await this.jwtService.decode(
@@ -36,7 +48,7 @@ export class ChatRepository {
       );
 
       if (!userDetails) {
-        AppResult.fail({ code: 'USER_SESSION_NOT_FOUND' });
+        AppResult.fail({ code: USER_BAD_REQUEST_ERRORS.USER_NOT_FOUND });
       }
 
       // Extract user IDs from the payload and decoded token
@@ -79,10 +91,11 @@ export class ChatRepository {
           .findById(createdChat._id)
           .populate('users');
 
-        return AppResult.ok<any>(fullChat);
+        const mappedResponse = this.chatMapper.toFetchChatDTO(fullChat);
+        return AppResult.ok<FindOneChatDTO[]>(mappedResponse);
       }
     } catch (error) {
-      console.error(error);
+      this.logger.error('Error from catch: saveChat', error);
       return AppResult.fail({ code: 'Failed to save chat' });
     }
   }
@@ -117,7 +130,7 @@ export class ChatRepository {
       const mappedResult = this.chatMapper.toFetchChatDTO(chats);
       return AppResult.ok(mappedResult);
     } catch (error) {
-      console.error(error);
+      this.logger.error('Error from catch: fetchChat', error);
       return AppResult.fail({ code: 'Failed to save chat' });
     }
   }
@@ -131,14 +144,14 @@ export class ChatRepository {
   async createGroupChat(
     chat: any,
     request: Request,
-  ): Promise<AppResult<any> | AppResult<AppError>> {
+  ): Promise<AppResult<FindOneChatDTO> | AppResult<AppError>> {
     try {
       const cookie = request?.headers?.cookie;
       const userFromSession = await this.jwtService.decode(
         cookie.substring(COOKIE_NAME.length + 1).split(';')[0],
       );
       if (!userFromSession) {
-        return AppResult.fail({ code: 'USER_SESSION_NOT_FOUND' });
+        return AppResult.fail({ code: USER_BAD_REQUEST_ERRORS.USER_NOT_FOUND });
       }
 
       const users = chat.users.value.map((user) => {
@@ -164,7 +177,9 @@ export class ChatRepository {
       });
 
       if (isGroupChat) {
-        return AppResult.fail({ code: 'GROUP_CHAT_ALREADY_EXISTS' });
+        return AppResult.fail({
+          code: CHAT_BAD_REQUEST_ERRORS.GROUP_CHAT_ALREADY_EXISTS,
+        });
       }
 
       const groupChat = await this.chatModel.create({
@@ -181,9 +196,11 @@ export class ChatRepository {
         .populate('users')
         .populate('groupAdmin');
 
-      return AppResult.ok(fullChat);
+      const mappedResponse = this.chatMapper.toGroupChatDTO(fullChat);
+      return AppResult.ok(mappedResponse);
     } catch (error) {
-      console.error(error);
+      console.log(error);
+      this.logger.error('Error from catch: createGroupChat', error);
       return AppResult.fail({ code: 'Failed to save chat' });
     }
   }
@@ -197,14 +214,14 @@ export class ChatRepository {
   async renameGroup(
     chat: any,
     request: Request,
-  ): Promise<AppResult<any> | AppResult<AppError>> {
+  ): Promise<AppResult<AddToGroupDTO> | AppResult<AppError>> {
     try {
       const cookie = request?.headers?.cookie;
       const userFromSession = await this.jwtService.decode(
         cookie.substring(COOKIE_NAME.length + 1).split(';')[0],
       );
       if (!userFromSession) {
-        AppResult.fail({ code: 'USER_SESSION_NOT_FOUND' });
+        AppResult.fail({ code: USER_BAD_REQUEST_ERRORS.USER_NOT_FOUND });
       }
       const updatedChat = await this.chatModel
         .findByIdAndUpdate(
@@ -220,12 +237,13 @@ export class ChatRepository {
         .populate('groupAdmin');
 
       if (!updatedChat) {
-        return AppResult.fail({ code: 'CHAT_NOT_FOUND' });
+        return AppResult.fail({ code: CHAT_BAD_REQUEST_ERRORS.CHAT_NOT_FOUND });
       } else {
-        return AppResult.ok(updatedChat);
+        const mappedResponse = this.chatMapper.toAddGroupChatDto(updatedChat);
+        return AppResult.ok(mappedResponse);
       }
     } catch (error) {
-      console.error(error);
+      this.logger.error('Error from catch: renameGroup', error);
       return AppResult.fail({ code: 'Failed to save chat' });
     }
   }
@@ -239,14 +257,14 @@ export class ChatRepository {
   async removeFromGroupChat(
     chat: any,
     request: Request,
-  ): Promise<AppResult<any> | AppResult<AppError>> {
+  ): Promise<AppResult<AddToGroupDTO> | AppResult<AppError>> {
     try {
       const cookie = request?.headers?.cookie;
       const userFromSession = await this.jwtService.decode(
         cookie.substring(COOKIE_NAME.length + 1).split(';')[0],
       );
       if (!userFromSession) {
-        AppResult.fail({ code: 'USER_SESSION_NOT_FOUND' });
+        AppResult.fail({ code: USER_BAD_REQUEST_ERRORS.USER_NOT_FOUND });
       }
       const foundUser = await this.userService.getUserByUserId(
         chat.userId.value,
@@ -265,12 +283,15 @@ export class ChatRepository {
         .populate('groupAdmin');
 
       if (!removeUserFromGroupChat) {
-        return AppResult.fail({ code: 'CHAT_NOT_FOUND' });
+        return AppResult.fail({ code: CHAT_BAD_REQUEST_ERRORS.CHAT_NOT_FOUND });
       } else {
-        return AppResult.ok(removeUserFromGroupChat);
+        const mappedResponse = this.chatMapper.toAddGroupChatDto(
+          removeUserFromGroupChat,
+        );
+        return AppResult.ok(mappedResponse);
       }
     } catch (error) {
-      console.error(error);
+      this.logger.error('Error from catch: removeFromGroupChat', error);
       return AppResult.fail({ code: 'Failed to save chat' });
     }
   }
@@ -284,18 +305,32 @@ export class ChatRepository {
   async addUserToGroupChat(
     chat: any,
     request: Request,
-  ): Promise<AppResult<any> | AppResult<AppError>> {
+  ): Promise<AppResult<AddToGroupDTO> | AppResult<AppError>> {
     try {
       const cookie = request?.headers?.cookie;
       const userFromSession = await this.jwtService.decode(
         cookie.substring(COOKIE_NAME.length + 1).split(';')[0],
       );
       if (!userFromSession) {
-        AppResult.fail({ code: 'USER_SESSION_NOT_FOUND' });
+        return AppResult.fail({ code: USER_BAD_REQUEST_ERRORS.USER_NOT_FOUND });
       }
       const foundUser = await this.userService.getUserByUserId(
         chat.userId.value,
       );
+
+      const groupChat = await this.chatModel.findById(chat.chatId.value);
+
+      if (!groupChat) {
+        return AppResult.fail({ code: CHAT_BAD_REQUEST_ERRORS.CHAT_NOT_FOUND });
+      }
+
+      // Check if the user is already part of the group
+      if (groupChat.users.includes(foundUser._id)) {
+        return AppResult.fail({
+          code: CHAT_BAD_REQUEST_ERRORS.USER_ALREADY_IN_GROUP,
+        });
+      }
+
       const addUserFromGroupChat = await this.chatModel
         .findByIdAndUpdate(
           chat.chatId.value,
@@ -308,14 +343,11 @@ export class ChatRepository {
         )
         .populate('users')
         .populate('groupAdmin');
-
-      if (!addUserFromGroupChat) {
-        return AppResult.fail({ code: 'CHAT_NOT_FOUND' });
-      } else {
-        return AppResult.ok(addUserFromGroupChat);
-      }
+      const mappedResponse =
+        this.chatMapper.toAddGroupChatDto(addUserFromGroupChat);
+      return AppResult.ok(mappedResponse);
     } catch (error) {
-      console.error(error);
+      this.logger.error('Error from catch: addToGroupChat', error);
       return AppResult.fail({ code: 'Failed to save chat' });
     }
   }

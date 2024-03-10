@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import {
   ApiResponse,
   AppError,
@@ -8,10 +8,10 @@ import {
 } from '@suryac72/api-core-services';
 import { Request, Response } from 'express';
 import { ChatRepository } from '@app/feature-chat/repo/chat.repository';
-import { ChatMapper } from '@app/feature-chat/mapper/chat.mapper';
 import { CHAT_BAD_REQUEST_ERRORS } from '@app/feature-chat/constants/chat.constants';
 import { RenameGroupRequestDTO } from './rename-group-chat.dto';
 import { RENAME_GROUP } from '@app/feature-chat/domain/chat.domain';
+import { AddToGroupDTO } from '@app/feature-chat/dtos/chat.dto';
 
 type RequestBody = {
   body: RenameGroupRequestDTO;
@@ -19,14 +19,18 @@ type RequestBody = {
   response: Response;
 };
 
-type ResponseBody = AppResult<AppError> | AppResult<ApiResponse<any, unknown>>;
+type ResponseBody =
+  | AppResult<AppError>
+  | AppResult<ApiResponse<AddToGroupDTO, unknown>>;
 
 @Injectable()
-export class RenameGroupChatUseCase implements UseCase<RequestBody, any> {
+export class RenameGroupChatUseCase
+  implements UseCase<RequestBody, ResponseBody>
+{
   constructor(
     private chatRepository: ChatRepository,
     private readonly domainService: DomainService,
-    private readonly chatMapper: ChatMapper,
+    private readonly logger: Logger,
   ) {}
 
   async execute(requestObj: RequestBody): Promise<ResponseBody> {
@@ -44,16 +48,18 @@ export class RenameGroupChatUseCase implements UseCase<RequestBody, any> {
       if (AppResult.isInvalid(chatDomain)) {
         return chatDomain;
       }
-      const saveChats = await this.chatRepository.renameGroup(
+      const renameChat = await this.chatRepository.renameGroup(
         chatDomain.getValue(),
         request,
       );
-      if (AppResult.isInvalid(saveChats)) {
-        return saveChats;
+      if (AppResult.isInvalid(renameChat)) {
+        return renameChat;
       }
-      return AppResult.ok<any>(saveChats);
+      return AppResult.ok<ApiResponse<AddToGroupDTO, unknown>>({
+        data: renameChat.getValue(),
+      });
     } catch (e) {
-      console.log(e);
+      this.logger.error('Error from catch:RenameGroupChatUseCase', e);
       return AppResult.fail({ code: 'CHAT_UNEXPECTED_ERROR' });
     }
   }

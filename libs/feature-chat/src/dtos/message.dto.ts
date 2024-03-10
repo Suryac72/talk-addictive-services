@@ -7,5 +7,5 @@ export class FetchMessageDTO {
         pic?:string;
     };
     content: string;
-    chat: string;
+    chat: string | null;
 }

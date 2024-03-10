@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import {
   ApiResponse,
   AppError,
@@ -9,9 +9,9 @@ import {
 import { Request, Response } from 'express';
 import { GroupChatRequestBody } from './create-group-chat.dto';
 import { ChatRepository } from '@app/feature-chat/repo/chat.repository';
-import { ChatMapper } from '@app/feature-chat/mapper/chat.mapper';
 import { CHAT_BAD_REQUEST_ERRORS } from '@app/feature-chat/constants/chat.constants';
 import { CREATE_GROUP_CHAT } from '@app/feature-chat/domain/chat.domain';
+import { FindOneChatDTO } from '@app/feature-chat/dtos/chat.dto';
 
 type RequestBody = {
   body: GroupChatRequestBody;
@@ -19,14 +19,18 @@ type RequestBody = {
   response: Response;
 };
 
-type ResponseBody = AppResult<AppError> | AppResult<ApiResponse<any, unknown>>;
+type ResponseBody =
+  | AppResult<AppError>
+  | AppResult<ApiResponse<FindOneChatDTO, unknown>>;
 
 @Injectable()
-export class CreateGroupChatUseCase implements UseCase<RequestBody, any> {
+export class CreateGroupChatUseCase
+  implements UseCase<RequestBody, ResponseBody>
+{
   constructor(
     private chatRepository: ChatRepository,
     private readonly domainService: DomainService,
-    private readonly chatMapper: ChatMapper,
+    private readonly logger: Logger,
   ) {}
 
   async execute(requestObj: RequestBody): Promise<ResponseBody> {
@@ -49,12 +53,17 @@ export class CreateGroupChatUseCase implements UseCase<RequestBody, any> {
         request,
       );
       if (AppResult.isInvalid(saveChats)) {
+        this.logger.error('Error from repository:createGroupChat');
         return saveChats;
       }
-      return AppResult.ok<any>(saveChats);
+      return AppResult.ok<ApiResponse<FindOneChatDTO, unknown>>({
+        data: saveChats.getValue(),
+      });
     } catch (e) {
-      console.log(e);
-      return AppResult.fail({ code: 'CHAT_UNEXPECTED_ERROR' });
+      this.logger.error('Error from catch CreateGroupChatUseCase:');
+      return AppResult.fail({
+        code: CHAT_BAD_REQUEST_ERRORS.CHAT_UNEXPECTED_ERROR,
+      });
     }
   }
 }

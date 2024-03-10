@@ -19,4 +19,17 @@ export class MessageMapper {
         });
         return dto;
     }
+
+    toMessageDTO(message: any) : FetchMessageDTO {
+        const messageObj : FetchMessageDTO = {
+            messageId: message._id,
+            sender: {
+                userId: message.sender.userId,
+                email: message.sender.email,
+            },
+            content: message.content,
+            chat: message.chat
+        }
+        return messageObj;
+    }
 }

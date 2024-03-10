@@ -1,17 +1,22 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { USER_BAD_REQUEST_ERRORS } from '../../const/auth.constants';
 import { AuthRepository } from '@app/feature-auth/repo/auth.repository';
 import { LoginResponse } from '@app/feature-auth/dtos/user.dto';
 import { LOGIN_DOMAIN } from '@app/feature-auth/domains/auth.domain';
-import { ApiResponse, AppError, AppResult, DomainService, UseCase } from '@suryac72/api-core-services';
+import {
+  ApiResponse,
+  AppError,
+  AppResult,
+  DomainService,
+  UseCase,
+} from '@suryac72/api-core-services';
 import { LoginDTO } from './login-user.dto';
-import { Request,Response } from 'express';
-
+import { Request, Response } from 'express';
 
 type UserLoginRequest = {
   body: LoginDTO;
-  request: Request,
-  response: Response
+  request: Request;
+  response: Response;
 };
 
 type ResponseBody =
@@ -19,15 +24,19 @@ type ResponseBody =
   | AppResult<ApiResponse<Response<any, Record<string, any>>, unknown>>;
 
 @Injectable()
-export class UserLoginUseCase implements UseCase<UserLoginRequest, ResponseBody> {
+export class UserLoginUseCase
+  implements UseCase<UserLoginRequest, ResponseBody>
+{
   constructor(
     private authRepository: AuthRepository,
     private readonly domainService: DomainService,
+    private readonly logger: Logger,
   ) {}
 
   async execute(requestObj: UserLoginRequest): Promise<ResponseBody> {
     try {
-      const { body,request,response } = requestObj;
+      this.logger.log('Executing UserLoginUseCase.........');
+      const { body, request, response } = requestObj;
       if (Object.values(body).length <= 0) {
         return AppResult.fail({
           code: USER_BAD_REQUEST_ERRORS.INVALID_USER_BODY,
@@ -44,15 +53,17 @@ export class UserLoginUseCase implements UseCase<UserLoginRequest, ResponseBody>
       const loginUser = await this.authRepository.loginUser(
         loginDomain.getValue(),
         request,
-        response
+        response,
       );
       if (AppResult.isInvalid(loginUser)) {
         return loginUser;
       }
-      return AppResult.ok<ApiResponse<Response<any, Record<string, any>>, unknown>>({ data: loginUser.getValue() });
+      return AppResult.ok<
+        ApiResponse<Response<any, Record<string, any>>, unknown>
+      >({ data: loginUser.getValue() });
     } catch (e) {
-      console.log(e);
-      return AppResult.fail({code: 'USER_UNEXPECTED_ERROR'})
+      this.logger.error('Error from catch: UserLoginUseCase', e);
+      return AppResult.fail({ code: 'USER_UNEXPECTED_ERROR' });
     }
   }
 }

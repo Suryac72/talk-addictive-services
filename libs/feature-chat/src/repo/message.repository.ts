@@ -7,6 +7,7 @@ import { User } from '../models/user.schema';
 import { Message } from '../models/message.schema';
 import { MESSAGE_BAD_REQUEST_ERRORS } from '../constants/message.constants';
 import { MessageMapper } from '../mapper/message.mapper';
+import { FetchMessageDTO } from '../dtos/message.dto';
 
 @Injectable()
 export class MessageRepository {
@@ -15,10 +16,8 @@ export class MessageRepository {
     @InjectModel('User') private userModel: Model<User>,
     @InjectModel('Message') private messageModel: Model<Message>,
     private readonly logger: Logger,
-    private readonly messageMapper: MessageMapper
-
-  ) {
-  }
+    private readonly messageMapper: MessageMapper,
+  ) {}
 
   async getUserById(userId: string): Promise<User | null> {
     return this.userModel.findOne({ userId }).exec();
@@ -43,8 +42,10 @@ export class MessageRepository {
       const mappedResult = this.messageMapper.toFetchMessageDTO(messages);
       return AppResult.ok(mappedResult);
     } catch (error) {
-      this.logger.error('Error from catch: fetchMessage',error);
-      return AppResult.fail({ code: MESSAGE_BAD_REQUEST_ERRORS.MESSAGE_UNEXPECTED_ERROR });
+      this.logger.error('Error from catch: fetchMessage', error);
+      return AppResult.fail({
+        code: MESSAGE_BAD_REQUEST_ERRORS.MESSAGE_UNEXPECTED_ERROR,
+      });
     }
   }
 
@@ -56,10 +57,9 @@ export class MessageRepository {
    */
   async sendMessage(
     message: any,
-  ): Promise<AppResult<any> | AppResult<AppError>> {
+  ): Promise<AppResult<FetchMessageDTO> | AppResult<AppError>> {
     try {
       const user = await this.getUserById(message.userId.value);
-      console.log(user);
       const messageBody = {
         sender: user._id,
         content: message.messageBody.value,
@@ -80,10 +80,13 @@ export class MessageRepository {
       await this.chatModel.findByIdAndUpdate(message.chatId.value, {
         latestMessage: resultantMessage,
       });
-      return AppResult.ok(resultantMessage);
+      const mappedResult = this.messageMapper.toMessageDTO(resultantMessage);
+      return AppResult.ok(mappedResult);
     } catch (error) {
-      console.error(error);
-      return AppResult.fail({ code: 'MESSAGE_UNEXPECTED_ERROR' });
+      this.logger.error('Error from catch: sendMessage', error);
+      return AppResult.fail({
+        code: MESSAGE_BAD_REQUEST_ERRORS.MESSAGE_UNEXPECTED_ERROR,
+      });
     }
   }
 }

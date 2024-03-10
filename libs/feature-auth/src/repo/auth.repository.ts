@@ -1,9 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { AuthMapper } from '../mapper/auth.mapper';
 import { PrismaClient } from '@prisma/client';
 import { UserSignUpDTO } from '../dtos/user.dto';
 import { USER_BAD_REQUEST_ERRORS } from '../const/auth.constants';
-import { AppError, AppResult, AuthService, QueryBuilder } from '@suryac72/api-core-services';
+import { AppError, AppResult, AuthService, COOKIE_NAME, QueryBuilder } from '@suryac72/api-core-services';
 import * as bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
 import { queryMaps } from './query-map';
@@ -19,6 +19,7 @@ export class AuthRepository {
     private readonly authService: AuthService,
     private readonly queryBuilder: QueryBuilder,
     @InjectModel('User') private userModel: Model<User>,
+    private readonly logger: Logger,
   ) {}
 
   /**
@@ -55,9 +56,9 @@ export class AuthRepository {
       user.save()
       const resultantObject = this.mapper.toDto(result[0]);
       return AppResult.ok(resultantObject);
-    } catch (e) {
-      console.log(e);
-      return AppResult.fail({ code: 'INTERNAL_SERVER_ERROR' });
+    } catch (error) {
+      this.logger.error('Error from catch: signup', error);
+      return AppResult.fail({ code: USER_BAD_REQUEST_ERRORS.USER_UNEXPECTED_ERROR});
     }
   }
 
@@ -109,7 +110,7 @@ export class AuthRepository {
       }
 
       // Set cookie and send response
-      response.cookie('talk-addictive', accessToken, {
+      response.cookie(COOKIE_NAME, accessToken, {
         expires: new Date(Date.now() + 9999999),
         httpOnly: false,
         secure: true,
@@ -119,9 +120,9 @@ export class AuthRepository {
       return AppResult.ok(
         response.send({ success: true, accessToken: accessToken }),
       );
-    } catch (e) {
-      console.log(e);
-      return AppResult.fail({ code: 'INTERNAL_SERVER_ERROR' });
+    } catch (error) {
+      this.logger.error('Error from catch: loginUser', error);
+      return AppResult.fail({ code: USER_BAD_REQUEST_ERRORS.USER_UNEXPECTED_ERROR });
     }
   }
 
@@ -138,11 +139,11 @@ export class AuthRepository {
     AppResult<Response<any, Record<string, any>>> | AppResult<AppError>
   > {
     try {
-      await response.clearCookie('talk-addictive');
+      await response.clearCookie(COOKIE_NAME);
       return AppResult.ok(response.send({ success: true }));
-    } catch (e) {
-      console.log(e);
-      return AppResult.fail({ code: 'INTERNAL_SERVER_ERROR' });
+    } catch (error) {
+      this.logger.error('Error from catch: logout', error);
+      return AppResult.fail({ code: USER_BAD_REQUEST_ERRORS.USER_UNEXPECTED_ERROR });
     }
   }
 

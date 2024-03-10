@@ -1,11 +1,19 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { USER_BAD_REQUEST_ERRORS } from '../../const/auth.constants';
 import { AuthRepository } from '@app/feature-auth/repo/auth.repository';
 import { UserSignUpDTO } from '@app/feature-auth/dtos/user.dto';
-import { FIND_ALL_USERS_DOMAIN, SIGN_UP_DOMAIN } from '@app/feature-auth/domains/auth.domain';
-import { ApiResponse, AppError, AppResult, DomainService, UseCase } from '@suryac72/api-core-services';
+import {
+  FIND_ALL_USERS_DOMAIN,
+  SIGN_UP_DOMAIN,
+} from '@app/feature-auth/domains/auth.domain';
+import {
+  ApiResponse,
+  AppError,
+  AppResult,
+  DomainService,
+  UseCase,
+} from '@suryac72/api-core-services';
 import { FindAllUserQuery } from './find-all-users.dto';
-
 
 type FindAllUserRequest = {
   query: FindAllUserQuery;
@@ -16,14 +24,18 @@ type Response =
   | AppResult<ApiResponse<UserSignUpDTO[], unknown>>;
 
 @Injectable()
-export class FindAllUsersUseCase implements UseCase<FindAllUserRequest, Response> {
+export class FindAllUsersUseCase
+  implements UseCase<FindAllUserRequest, Response>
+{
   constructor(
     private authRepository: AuthRepository,
     private readonly domainService: DomainService,
+    private readonly logger: Logger,
   ) {}
 
   async execute(request: FindAllUserRequest): Promise<Response> {
     try {
+      this.logger.log('Executing FindAllUserUseCase.......');
       const { query } = request;
       if (Object.values(query).length <= 0) {
         return AppResult.fail({
@@ -46,8 +58,8 @@ export class FindAllUsersUseCase implements UseCase<FindAllUserRequest, Response
       }
       return AppResult.ok({ data: findUser.getValue() });
     } catch (e) {
-      console.log(e);
-      return AppResult.fail({code: 'USER_UNEXPECTED_ERROR'})
+      this.logger.error('Error from catch: FindAllUsersUseCase', e);
+      return AppResult.fail({ code: USER_BAD_REQUEST_ERRORS.USER_UNEXPECTED_ERROR });
     }
   }
 }

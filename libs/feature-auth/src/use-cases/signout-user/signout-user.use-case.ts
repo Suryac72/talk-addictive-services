@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { AuthRepository } from '@app/feature-auth/repo/auth.repository';
 import { ApiResponse, AppError, AppResult, UseCase } from '@suryac72/api-core-services';
 import { Request,Response } from 'express';
@@ -16,13 +16,14 @@ type ResponseBody =
 @Injectable()
 export class UserLogoutUseCase implements UseCase<UserLoginRequest, ResponseBody> {
   constructor(
-    private authRepository: AuthRepository,
+    private readonly authRepository: AuthRepository,
+    private readonly logger: Logger
   ) {}
 
   async execute(requestObj: UserLoginRequest): Promise<ResponseBody> {
     try {
+      this.logger.log('Executing UserLogoutUseCase..........');
       const { request,response } = requestObj;
-     
       const logoutUser = await this.authRepository.logOut(
         request,
         response
@@ -32,7 +33,7 @@ export class UserLogoutUseCase implements UseCase<UserLoginRequest, ResponseBody
       }
       return AppResult.ok<ApiResponse<Response<any, Record<string, any>>, unknown>>({ data: logoutUser.getValue() });
     } catch (e) {
-      console.log(e);
+       this.logger.error('Error from catch: UserLogoutUseCase', e);
       return AppResult.fail({code: 'USER_UNEXPECTED_ERROR'})
     }
   }

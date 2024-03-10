@@ -1,4 +1,14 @@
-import { Body, Controller, Get, Param, Patch, Post, Req, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Logger,
+  Param,
+  Patch,
+  Post,
+  Req,
+  Res,
+} from '@nestjs/common';
 import { AppResult } from '@suryac72/api-core-services';
 import { Request, Response } from 'express';
 import { ChatParams } from './use-cases/find-one-chat/find-one-chat.dto';
@@ -14,17 +24,17 @@ import { GroupChatRequestBodyDTO } from './use-cases/add-to-group-chat/add-to-gr
 import { AddToGroupChatUseCase } from './use-cases/add-to-group-chat/add-to-group-chat.use-case';
 import { ChatRequestDTO } from './use-cases/save-chat/save-chat.dto';
 
-
 @Controller('chats')
 export class ChatController {
+  
   constructor(
     private readonly findOneChatUseCase: FindOneChatUseCase,
     private readonly saveChatUseCase: SaveChatUseCase,
-    private readonly createGroupUseCase:CreateGroupChatUseCase,
-    private readonly renameGroupUseCase:RenameGroupChatUseCase,
+    private readonly createGroupUseCase: CreateGroupChatUseCase,
+    private readonly renameGroupUseCase: RenameGroupChatUseCase,
     private readonly removeFromGroupUseCase: RemoveUserFromGroupUseCase,
     private readonly addToGroupUseCase: AddToGroupChatUseCase,
-
+    private readonly loggerService: Logger,
   ) {}
 
   @Get('/:userId')
@@ -33,12 +43,20 @@ export class ChatController {
     @Req() request: Request,
     @Res() response: Response,
   ) {
+    this.loggerService.log(
+      'Executing findOneChatUseCase',
+      'find-one-chat.use-case.ts',
+    );
     const result = await this.findOneChatUseCase.execute({
       params,
       request,
       response,
     });
     if (AppResult.isInvalid(result)) {
+      this.loggerService.error(
+        'Error in use-case Response of findOneChatUseCase:',
+        result.getError(),
+      );
       return response.status(400).send(result);
     }
     return response.send(result.getValue());
@@ -50,12 +68,20 @@ export class ChatController {
     @Req() request: Request,
     @Res() response: Response,
   ) {
+    this.loggerService.log(
+      'Executing saveChatUseCase',
+      'save-chat.use-case.ts',
+    );
     const result = await this.saveChatUseCase.execute({
       body,
       request,
       response,
     });
     if (AppResult.isInvalid(result)) {
+      this.loggerService.error(
+        'Error in use-case Response of saveChatUseCase:',
+        result.getError(),
+      );
       return response.status(400).send(result);
     }
     return response.send(result.getValue());
@@ -67,12 +93,20 @@ export class ChatController {
     @Req() request: Request,
     @Res() response: Response,
   ) {
+    this.loggerService.log(
+      'Executing createGroupUseCase',
+      'create-group-chat.use-case.ts',
+    );
     const result = await this.createGroupUseCase.execute({
       body,
       request,
       response,
     });
     if (AppResult.isInvalid(result)) {
+      this.loggerService.error(
+        'Error in use-case Response of createGroupUseCase:',
+        result.getError(),
+      );
       return response.status(400).send(result);
     }
     return response.send(result.getValue());
@@ -84,12 +118,20 @@ export class ChatController {
     @Req() request: Request,
     @Res() response: Response,
   ) {
+    this.loggerService.log(
+      'Executing renameGroupUseCase',
+      'rename-group-chat.use-case.ts',
+    );
     const result = await this.renameGroupUseCase.execute({
       body,
       request,
       response,
     });
     if (AppResult.isInvalid(result)) {
+      this.loggerService.error(
+        'Error in use-case Response of renameGroupUseCase:',
+        result.getError(),
+      );
       return response.status(400).send(result);
     }
     return response.send(result.getValue());
@@ -97,16 +139,24 @@ export class ChatController {
 
   @Patch('/removeGroup')
   async removeGroup(
-    @Body() body:GroupChatRequestBodyDTO ,
+    @Body() body: GroupChatRequestBodyDTO,
     @Req() request: Request,
     @Res() response: Response,
   ) {
+    this.loggerService.log(
+      'Executing removeFromGroupUseCase',
+      'remove-from-group-chat.use-case.ts',
+    );
     const result = await this.removeFromGroupUseCase.execute({
       body,
       request,
       response,
     });
     if (AppResult.isInvalid(result)) {
+      this.loggerService.error(
+        'Error in use-case Response of removeFromGroupUseCase:',
+        result.getError(),
+      );
       return response.status(400).send(result);
     }
     return response.send(result.getValue());
@@ -114,19 +164,26 @@ export class ChatController {
 
   @Patch('/addToGroup')
   async addToGroup(
-    @Body() body:GroupChatRequestBodyDTO ,
+    @Body() body: GroupChatRequestBodyDTO,
     @Req() request: Request,
     @Res() response: Response,
   ) {
+    this.loggerService.log(
+      'Executing addToGroupUseCase',
+      'add-to-group.use-case.ts',
+    );
     const result = await this.addToGroupUseCase.execute({
       body,
       request,
       response,
     });
     if (AppResult.isInvalid(result)) {
+      this.loggerService.error(
+        'Error in use-case Response of addToGroupUseCase:',
+        result.getError(),
+      );
       return response.status(400).send(result);
     }
     return response.send(result.getValue());
   }
-
 }
