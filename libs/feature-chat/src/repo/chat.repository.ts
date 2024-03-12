@@ -19,7 +19,6 @@ import {
 } from '../dtos/chat.dto';
 import { ChatMapper } from '../mapper/chat.mapper';
 import { CHAT_BAD_REQUEST_ERRORS } from '../constants/chat.constants';
-import { ChatRequestDTO } from '../use-cases/save-chat/save-chat.dto';
 @Injectable()
 export class ChatRepository {
   constructor(
