@@ -6,4 +6,5 @@ export class SignupDTO {
     phoneNo: string;
     role?:number;
     status?:boolean;
+    pic?:string;
 }

@@ -25,17 +25,22 @@ export class AuthMapper {
       ? String(userDetails.status?.value)
       : String(STATUS.INACTIVE);
     persistence.user_id = uuidv4();
+    if (userDetails.pic?.value) {
+      persistence.user_pic = userDetails.pic?.value;
+    }
     return persistence;
   }
 
   toDto(userDetails: user_credentials): UserSignUpDTO {
     const dto: UserSignUpDTO = {} as UserSignUpDTO;
-    dto.id = userDetails.user_id,
-    dto.email = userDetails.user_email;
+    (dto.id = userDetails.user_id), (dto.email = userDetails.user_email);
     dto.phoneNo = userDetails.user_phone_no;
     dto.userName = userDetails.user_name;
     dto.role = Number(userDetails.user_role);
     dto.status = String(userDetails.user_status);
+    if (userDetails.user_pic) {
+      dto.pic = userDetails.user_pic;
+    }
     return dto;
   }
 

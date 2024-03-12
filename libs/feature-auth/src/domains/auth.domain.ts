@@ -25,6 +25,10 @@ export const SIGN_UP_DOMAIN = {
         validate: isBoolean,
         optional: true,
     },
+    pic: {
+        validate: isString,
+        optional:true
+    }
 };
 
 

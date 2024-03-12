@@ -11,10 +11,11 @@ model user_credentials {
   user_id       String  @id @db.Uuid
   created_at    String? @db.VarChar(255)
   updated_at    String? @db.VarChar(255)
-  user_email    String? @unique @db.VarChar(255)
-  user_name     String? @db.VarChar(255)
-  user_password String? @db.VarChar(255)
-  user_phone_no String? @db.VarChar(255)
+  user_email    String  @unique @db.VarChar(255)
+  user_name     String  @db.VarChar(255)
+  user_password String  @db.VarChar(255)
+  user_phone_no String  @db.VarChar(255)
   user_role     String? @db.VarChar(255)
   user_status   String? @db.VarChar(255)
+  user_pic      String? @db.VarChar
 }

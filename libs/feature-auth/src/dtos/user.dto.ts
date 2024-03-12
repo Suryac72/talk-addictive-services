@@ -11,6 +11,7 @@ export class UserSignUpDTO {
     role ?: number;
     status?: string;
     id?:string;
+    pic?:string;
 }
 
 export class LoginResponse {
